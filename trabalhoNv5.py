@@ -1,89 +1,19 @@
-from faker import Faker
-from wordcloud import WordCloud
-from num2words import num2words
+### Implementar uma solução em Python para estudar o compartamento de uma série temporal com Rgressão Linear ####
+import numpy as np
+from sklearn.linear_model import LinearRegression
 import matplotlib.pyplot as plt
-import threading
 
-## Classe pessoas ##
-class Pessoas:
-    def __init__(self, nome, nota):
-        self.nome = nome
-        self.nota = nota
+x = np.array([5, 10, 15, 20, 25, 30]).reshape((-1, 1))
+y = np.array([6, 12, 14, 23, 27, 32])
 
-## Função para gerar os dados ##
-def fazDados():
-    fake = Faker('pt_BR')
-    lista = []
-    for a in range(10):
-        nota = fake.random_int(1, 10)
-        nome = fake.name()
-        dados = Pessoas(nome, nota)
-        lista.append(dados)
-    return lista
+model = LinearRegression().fit(x, y)
 
-# variável que recebe nossa lista com arquivos random ##
-lista = fazDados()
+# Premonindo e imprimindo isso
+y_pred = model.predict(x)
+print(f'Dados do teste: ',y, sep='\n')
+print(f'Dados da predição: ',y_pred, sep='\n')
 
-## Função que grava os dados no arquivo txt ##
-def gravar(lista):
-    arquivo = open('Dados.txt', 'w+')
-    for dados in lista:
-        arquivo.write(dados.nome + "," + str(dados.nota) + "\n")
-
-    arquivo.close()
-
-gravar(lista)
-
-## Função para importar dados do nosso arquivo txt
-def importar():
-    arquivo = open('Dados.txt', 'r')
-    lista = arquivo.read().splitlines()
-    lista_random = []
-    for NomesNotas in lista:
-        lista2 = NomesNotas.split(',')
-        dados = Pessoas(lista2[0], lista2[1])
-        lista_random.append(dados)
-    arquivo.close()
-
-    return lista_random
-
-## Função que gera o Histograma ##
-def fazHistograma(lista):
-    plt.hist(lista, density=True, facecolor='blue', alpha=0.80)
-    plt.xlabel('Pontuações')
-    plt.ylabel('Probabilidade')
-    plt.title('Histograma das Pontuações')
-    plt.grid(True)
-    plt.show()
-
-## Gerando o dados para o Histograma ##
-lista1 = importar()
-listaNotas = []
-listaOrdenada = []
-for i in lista1:
-    numero = int(i.nota)
-    listaNotas.append(numero)
-    num_ptbr = num2words(numero, lang='pt-br')
-    listaOrdenada.append(num_ptbr)
-
-## Criando uma variável para começar a nuvem de palavras ##
-texto = (" ").join(listaOrdenada)
-
-## Função que mostra a nuvem de palabras ##
-def fazNuvem():
-    nuvemPalavras = WordCloud(background_color='black',
-                                width=700, height=350).generate(texto)
-    plt.imshow(nuvemPalavras, interpolation='bilinear')
-    plt.axis("off")
-    nuvemPalavras.to_file("Nuvem de palavras.png")
-    plt.show()
-
-# Mostrando nosso Histograma e nossa Nuvem de palavras
-threading.Thread(target=fazHistograma(listaNotas)).start()
-fazNuvem()
-
-
-
-
-
-
+plt.scatter(x, y, c='blue')
+plt.plot(x, y_pred, c='red')
+plt.legend(['Predição', 'Real'])
+plt.show()
